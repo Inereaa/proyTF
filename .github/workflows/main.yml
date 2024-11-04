@@ -26,9 +26,8 @@ jobs:
 
       # DOCUMENTAR EL JAVASCRIPT
       - name: Generate Documentation
-        working-directory: ${{ github.workspace }}
         run: |
-          jsdoc ruleta.js -d ./docs
+          jsdoc ./ruleta.js -d ./docs
 
       # INSTALAR TERRAFORM
       - name: Setup Terraform

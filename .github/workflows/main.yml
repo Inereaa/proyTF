@@ -10,6 +10,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # CLONACIÓN DEL REPOSITORIO
+      - name: Checkout repository
+        uses: actions/checkout@v2
       # CREDENCIALES DE AWS
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4

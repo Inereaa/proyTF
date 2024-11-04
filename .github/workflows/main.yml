@@ -10,7 +10,46 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      
+# CLONACIÓN DEL REPOSITORIO
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      # CREDENCIALES DE AWS
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: us-east-1
+
+      # INSTALAR JSDOC
+      - name: Install JSDoc
+        run: |
+          npm install -g jsdoc
+
+      # DOCUMENTAR EL JAVASCRIPT
+      - name: Generate Documentation
+        run: |
+          jsdoc ./ruleta.js -d ./docs
+
+      # INSTALAR TERRAFORM
+      - name: Setup Terraform
+        run: |
+          curl -Lo terraform.zip https://releases.hashicorp.com/terraform/1.4.0/terraform_1.4.0_linux_amd64.zip
+          unzip terraform.zip
+          sudo mv terraform /usr/local/bin/
+          terraform --version
+
+      # TERRAFORM INIT
+      - name: Initialize Terraform
+        run: |
+          terraform init
+
+      # TERRAFORM APPLY
+      - name: Apply Terraform
+        run: |
+          terraform apply -auto-approve
+
       #  TERRAFORM DESTROY
       - name: Destroy Terraform
         run: |

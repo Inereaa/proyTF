@@ -33,7 +33,7 @@ jobs:
         run: |
           jsdoc ./ruleta.js -d ./docs
 
-      # INSTALAR TERRAFORM
+      # TERRAFORM INSTALL
       - name: Setup Terraform
         run: |
           # Instalar Terraform

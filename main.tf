@@ -1,11 +1,14 @@
 
 provider "aws" {
-  region = "us-east-1"
+  region         = var.region
+  access_key     = var.aws_access_key
+  secret_key     = var.aws_secret_key
+  session_token  = var.aws_session_token
 }
 
 # Crear la VPC
 resource "aws_vpc" "mi_vpc" {
-  cidr_block = "10.0.0.0/16"
+  cidr_block = var.vpc_cidr
 
   tags = {
     Name = "MiVPC"
@@ -14,9 +17,9 @@ resource "aws_vpc" "mi_vpc" {
 
 # Crear una Subred Pública
 resource "aws_subnet" "mi_subred_publica" {
-  vpc_id            = aws_vpc.mi_vpc.id
-  cidr_block        = "10.0.1.0/24"
-  availability_zone = "us-east-1a"
+  vpc_id                  = aws_vpc.mi_vpc.id
+  cidr_block              = var.public_subnet_cidr
+  availability_zone       = "${var.region}a"
   map_public_ip_on_launch = true
 
   tags = {
@@ -58,23 +61,23 @@ resource "aws_security_group" "mi_sg" {
   vpc_id = aws_vpc.mi_vpc.id
 
   ingress {
-    from_port   = 80  # Permitir tráfico HTTP
+    from_port   = 80
     to_port     = 80
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]  # Permitir acceso desde cualquier dirección IP
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   ingress {
-    from_port   = 22  # Permitir tráfico SSH
+    from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]  # Permitir acceso SSH
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
     from_port   = 0
     to_port     = 0
-    protocol    = "-1"  # Permitir todo el tráfico de salida
+    protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
@@ -83,79 +86,73 @@ resource "aws_security_group" "mi_sg" {
   }
 }
 
-# Crear el bucket de S3
-resource "aws_s3_bucket" "mi_bucket" {
-  bucket = "mi-bucket-proyecto-tf-2024-nmr"
+# Crear el par de claves SSH para la instancia
+resource "aws_key_pair" "nginx_server_ssh" {
+  key_name   = "nginx-server-ssh"
+  public_key = file("nginx-server.key.pub")
+  tags       = { Name = "nginx-server-ssh" }
+}
+
+# Crear la interfaz de red para la instancia EC2
+resource "aws_network_interface" "web_interface" {
+  subnet_id       = aws_subnet.mi_subred_publica.id
+  security_groups = [aws_security_group.mi_sg.id]
 
   tags = {
-    Name = "MiBucket"
+    Name = "WebInterface"
   }
 }
 
-# Bloquear acceso público en el bucket (con todos los valores en false)
-resource "aws_s3_bucket_public_access_block" "mi_bucket_public_access_block" {
-  bucket = aws_s3_bucket.mi_bucket.id
+# Crear la instancia EC2 con Apache, PHP y Git
+resource "aws_instance" "web_server" {
+  ami             = var.ami_id
+  instance_type   = var.instance_type
+  key_name        = aws_key_pair.nginx_server_ssh.key_name
 
-  block_public_acls       = false
-  ignore_public_acls      = false
-  block_public_policy     = false
-  restrict_public_buckets = false
-}
-
-# Crear la política del bucket (opcional)
-resource "aws_s3_bucket_policy" "mi_bucket_policy" {
-  bucket = aws_s3_bucket.mi_bucket.id
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow"
-        Principal = "*"
-        Action = "s3:GetObject"
-        Resource = "${aws_s3_bucket.mi_bucket.arn}/*"
-      }
-    ]
-  })
-}
-
-# Crear el objeto en el bucket de S3
-resource "aws_s3_object" "mi_archivo_zip" {
-  bucket = aws_s3_bucket.mi_bucket.id
-  key    = "casino.zip"
-  source = "C:\\Users\\nerea\\Downloads\\2DAW\\subjects\\despliegue\\proyTF\\casino.zip"
-}
-
-# Crear la instancia EC2 con Ubuntu
-resource "aws_instance" "mi_instancia" {
-  ami                    = "ami-0866a3c8686eaeeba"
-  instance_type         = "t2.micro"
-  subnet_id             = aws_subnet.mi_subred_publica.id
-  security_groups       = [aws_security_group.mi_sg.id]
-
-  tags = {
-    Name = "MiInstanciaWeb"
+  network_interface {
+    network_interface_id = aws_network_interface.web_interface.id
+    device_index         = 0
   }
 
-  # Usar este bloque para instalar un servidor web (Nginx) en la instancia
   user_data = <<-EOF
               #!/bin/bash
-              sudo apt update
-              sudo apt install nginx -y
-              sudo systemctl enable nginx
-              sudo systemctl start nginx
+              # Actualizar repositorios
+              sudo apt-get update
               
+              # Instalar Apache y PHP
+              sudo apt-get install -y apache2 php libapache2-mod-php php-mysql php-curl php-gd php-json php-zip git
+              
+              # Habilitar módulo PHP
+              sudo a2enmod php
+              
+              # Reiniciar Apache para aplicar cambios
+              sudo systemctl enable apache2
+              sudo systemctl restart apache2
+              
+              # Limpiar directorio web por defecto
+              sudo rm -rf /var/www/html/*
+              
+              # Clonar repositorio
               cd /var/www/html
-              sudo rm index.nginx-debian.html
-              sudo apt-get install wget -y
+              sudo git clone https://github.com/Inereaa/proyTF.git
+              sudo mv proyTF/pagina/* .
+              sudo rm -r proyTF/
+              
+              # Ajustar permisos
+              sudo chown -R www-data:www-data /var/www/html
+              sudo chmod -R 755 /var/www/html
 
-              wget https://mi-bucket-proyecto-tf-2024-nmr.s3.us-east-1.amazonaws.com/casino.zip
-              sudo apt install unzip
-              unzip -o casino.zip
+              # Crear archivo .htaccess para manejar PHP correctamente
+              echo "AddType application/x-httpd-php .php" | sudo tee /var/www/html/.htaccess
+              echo "DirectoryIndex index.php index.html" | sudo tee -a /var/www/html/.htaccess
               EOF
+
+  tags = {
+    Name = "WebServer"
+  }
 }
 
 # Outputs
 output "instance_ip" {
-  value = aws_instance.mi_instancia.public_ip
+  value = aws_instance.web_server.public_ip
 }

@@ -1,11 +1,4 @@
 
-provider "aws" {
-  region         = var.region
-  access_key     = var.aws_access_key
-  secret_key     = var.aws_secret_key
-  session_token  = var.aws_session_token
-}
-
 # Crear la VPC
 resource "aws_vpc" "mi_vpc" {
   cidr_block = var.vpc_cidr

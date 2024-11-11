@@ -31,7 +31,7 @@ jobs:
       # DOCUMENTAR EL JAVASCRIPT
       - name: Generate Documentation
         run: |
-          jsdoc ../pagina/ruleta.js -d ../docs
+          jsdoc ./pagina/ruleta.js -d ../docs
 
       # TERRAFORM INSTALL
       - name: Setup Terraform

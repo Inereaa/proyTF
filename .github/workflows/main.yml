@@ -1,4 +1,4 @@
-name: Desplegar terraform con mi web en la instancia y documentación de JS
+name: Desplegar terraform con mi web en mi instancia y documentación de JS
 
 on:
   push:

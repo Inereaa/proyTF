@@ -128,9 +128,10 @@ resource "aws_instance" "web_server" {
               # Clonar repositorio
               cd /var/www/html
               sudo git clone https://github.com/Inereaa/proyTF.git
-              sudo mv proyTF/pagina/* /var/www/html/
               sudo mv proyTF/docs /var/www/html/
-              sudo rm -r proyTF/
+              sudo mv proyTF/pagina/* /var/www/html/
+
+              sudo rm -rf proyTF/
               
               # Ajustar permisos
               sudo chown -R www-data:www-data /var/www/html

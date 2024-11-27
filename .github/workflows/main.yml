@@ -1,13 +1,24 @@
-name: Desplegar terraform con mi web en la instancia y documentación de JS
+name: Desplegar o Destruir Terraform con mi web en la instancia y documentación de JS
 
 on:
   push:
     branches:
       - main
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Choose action to execute'
+        required: true
+        type: choice
+        options:
+          - deploy
+          - destroy
+        default: deploy
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.action == 'deploy' }}
 
     steps:
       # CLONACIÓN DEL REPOSITORIO
@@ -36,7 +47,6 @@ jobs:
       # TERRAFORM INSTALL
       - name: Setup Terraform
         run: |
-          # Instalar Terraform
           curl -Lo terraform.zip https://releases.hashicorp.com/terraform/1.4.0/terraform_1.4.0_linux_amd64.zip
           unzip terraform.zip
           sudo mv terraform /usr/local/bin/
@@ -51,3 +61,50 @@ jobs:
       - name: TERRAFORM APPLY
         run: |
           terraform apply -auto-approve
+
+      # CREAR Y SUBIR .tfstate A S3
+      - name: Upload Terraform State to S3
+        run: |
+          terraform state push s3://nmr_bucket/terraform.tfstate
+
+  destroy:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.action == 'destroy' }}
+
+    steps:
+      # CLONACIÓN DEL REPOSITORIO
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # CREDENCIALES DE AWS
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: us-east-1
+
+      # INSTALAR TERRAFORM
+      - name: Setup Terraform
+        run: |
+          curl -Lo terraform.zip https://releases.hashicorp.com/terraform/1.4.0/terraform_1.4.0_linux_amd64.zip
+          unzip terraform.zip
+          sudo mv terraform /usr/local/bin/
+          terraform --version
+
+      # DESCARGAR EL .tfstate DESDE S3
+      - name: Download Terraform State from S3
+        run: |
+          aws s3 cp s3://nmr_bucket/terraform.tfstate .
+
+      # TERRAFORM DESTROY
+      - name: TERRAFORM DESTROY
+        run: |
+          terraform destroy -auto-approve
+
+      # DESTRUIR EL ARCHIVO .tfstate DE S3
+      - name: Delete Terraform State from S3
+        run: |
+          aws s3 rm s3://nmr_bucket/terraform.tfstate
+

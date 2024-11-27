@@ -42,9 +42,9 @@ jobs:
       # DOCUMENTAR EL JAVASCRIPT
       - name: Generate Documentation
         run: |
-          jsdoc ./pagina/ruleta.js -d ../docs
+          jsdoc ./pagina/ruleta.js -d ./proyTF/pagina/js/docs
 
-      # TERRAFORM INSTALL
+      # INSTALAR TERRAFORM
       - name: Setup Terraform
         run: |
           curl -Lo terraform.zip https://releases.hashicorp.com/terraform/1.4.0/terraform_1.4.0_linux_amd64.zip
@@ -55,17 +55,17 @@ jobs:
       # TERRAFORM INIT
       - name: TERRAFORM INIT
         run: |
-          terraform init
+          terraform -chdir=proyTF/tf init
 
       # TERRAFORM APPLY
       - name: TERRAFORM APPLY
         run: |
-          terraform apply -auto-approve
+          terraform -chdir=proyTF/tf apply -auto-approve
 
       # CREAR Y SUBIR .tfstate A S3
       - name: Upload Terraform State to S3
         run: |
-          terraform state push s3://nmr_bucket/terraform.tfstate
+          terraform -chdir=proyTF/tf state push s3://nmr_bucket/terraform.tfstate
 
   destroy:
     runs-on: ubuntu-latest
@@ -101,10 +101,11 @@ jobs:
       # TERRAFORM DESTROY
       - name: TERRAFORM DESTROY
         run: |
-          terraform destroy -auto-approve
+          terraform -chdir=proyTF/tf destroy -auto-approve
 
       # DESTRUIR EL ARCHIVO .tfstate DE S3
       - name: Delete Terraform State from S3
         run: |
           aws s3 rm s3://nmr_bucket/terraform.tfstate
+
 

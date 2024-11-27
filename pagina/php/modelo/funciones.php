@@ -1,6 +1,11 @@
 
 <?php
-
+/**
+ * Comprueba si un usuario existe en el archivo `usuarios.ini`.
+ *
+ * @param string $usuario El nombre del usuario a comprobar.
+ * @return string|null La contraseña asociada al usuario si existe, o NULL si no existe.
+ */
 // función 'existe' que comprobará si el usuario existe o no ya
 function existe($usuario) {
     // damos por hecho que el usuario no va a existir
@@ -17,6 +22,13 @@ function existe($usuario) {
     return $ok;
 }
 
+/**
+ * Guarda un usuario y su contraseña en el archivo `usuarios.ini`.
+ *
+ * @param string $usuario El nombre del usuario a registrar.
+ * @param string $clave La contraseña del usuario.
+ * @return bool `true` si la operación fue exitosa, `false` en caso contrario.
+ */
 // función 'existe' que meterá usuario + clave en el archivo 'usuarios.ini'
 function grabar($usuario, $clave) {
     // pensamos que algo puede fallar
@@ -37,6 +49,16 @@ function grabar($usuario, $clave) {
     return $ok;
 }
 
+/**
+ * Registra un usuario, crea su carpeta de trabajo, y genera su archivo de muro.
+ *
+ * Comprueba si el usuario ya existe antes de registrarlo. Si el registro es exitoso, 
+ * se crea un directorio para el usuario y un archivo `muro.php` con el diseño inicial de su muro.
+ *
+ * @param string $usuario El nombre del usuario a registrar.
+ * @param string $clave La contraseña del usuario.
+ * @return bool `true` si el registro fue exitoso, `false` en caso contrario.
+ */
 /* 
  * función 'registrar' que comprueba que el usuario no existe para después añadirlo 
  * al fichero de usuarios y crear su directorio de trabajo.
@@ -154,6 +176,16 @@ function registrar($usuario, $clave) {
     return $ok;
 }
 
+/**
+ * Verifica el acceso de un usuario mediante su nombre y contraseña.
+ *
+ * Comprueba si el usuario existe y si su contraseña coincide con la proporcionada.
+ * Si el acceso es autorizado, se registra en un archivo `registro.log`.
+ *
+ * @param string $usuario El nombre del usuario.
+ * @param string $clave La contraseña del usuario.
+ * @return bool `true` si las credenciales son válidas, `false` en caso contrario.
+ */
 // función 'acceder' que devuelve TRUE si el usuario existe y coincide su contraseña o FALSE en caso contrario.
 function acceder($usuario, $clave) {
     // damos por hecho que el usuario no existe

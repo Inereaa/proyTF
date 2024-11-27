@@ -1,0 +1,15 @@
+{
+    "name": "nerea/tests",
+    "autoload": {
+        "psr-4": {
+            "Nerea\\Tests\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Inereaa",
+            "email": "nerearojaas@gmail.com"
+        }
+    ],
+    "require": {}
+}

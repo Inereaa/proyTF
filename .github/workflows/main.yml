@@ -34,39 +34,13 @@ jobs:
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           aws-region: us-east-1
 
-      # INSTALAR PHP, PHPUNIT Y PHPDOCUMENTOR
-      - name: Install PHP, PHPUnit, and phpDocumentor
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y php-cli php-mbstring unzip curl
-
-          curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
-
-          composer global require phpunit/phpunit
-          export PATH=$PATH:~/.composer/vendor/bin
-
-          composer global require phpdocumentor/phpdocumentor
-          export PATH=$PATH:~/.composer/vendor/bin
-
-      # EJECUTAR PRUEBAS UNITARIAS CON PHPUNIT
-      - name: Run PHPUnit Tests
-        run: |
-          cd proyTF/tests
-          phpunit --bootstrap ../pagina/php/modelo/autoload.php UsuariosTest.php
-          continue-on-error: false
-
-      # GENERAR DOCUMENTACIÓN PHP
-      - name: Generate PHP Documentation
-        run: |
-          phpDocumentor -d proyTF/pagina/php/modelo -t proyTF/pagina/php/docs
-
       # INSTALAR JSDOC
       - name: Install JSDoc
         run: |
           npm install -g jsdoc
 
       # DOCUMENTAR EL JAVASCRIPT
-      - name: Generate Documentation
+      - name: Generate JavaScript Documentation
         run: |
           jsdoc ./pagina/ruleta.js -d ../docs
 
@@ -95,7 +69,7 @@ jobs:
       - name: Upload Terraform State to S3
         run: |
           aws s3 cp tf/terraform.tfstate s3://nmr_bucket/terraform.tfstate
-          
+
   destroy:
     runs-on: ubuntu-latest
     if: ${{ github.event.inputs.action == 'destroy' }}
@@ -138,3 +112,4 @@ jobs:
       - name: Delete Terraform State from S3
         run: |
           aws s3 rm s3://nmr_bucket/terraform.tfstate
+

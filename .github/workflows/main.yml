@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       action:
-        description: 'Choose action to execute'
+        description: 'Elige una opción'
         required: true
         type: choice
         options:
@@ -33,6 +33,32 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           aws-region: us-east-1
+
+      # INSTALAR PHP, PHPUNIT Y PHPDOCUMENTOR
+      - name: Install PHP, PHPUnit, and phpDocumentor
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y php-cli php-mbstring unzip curl
+
+          curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+
+          composer global require phpunit/phpunit
+          export PATH=$PATH:~/.composer/vendor/bin
+
+          composer global require phpdocumentor/phpdocumentor
+          export PATH=$PATH:~/.composer/vendor/bin
+
+      # EJECUTAR PRUEBAS UNITARIAS CON PHPUNIT
+      - name: Run PHPUnit Tests
+        run: |
+          cd proyTF/tests
+          phpunit --bootstrap ../pagina/php/modelo/autoload.php UsuariosTest.php
+          continue-on-error: false
+
+      # GENERAR DOCUMENTACIÓN PHP
+      - name: Generate PHP Documentation
+        run: |
+          phpDocumentor -d proyTF/pagina/php/modelo -t proyTF/pagina/php/docs
 
       # INSTALAR JSDOC
       - name: Install JSDoc
@@ -65,11 +91,11 @@ jobs:
           cd tf
           terraform apply -auto-approve
 
-      # CREAR Y SUBIR .tfstate A S3
+      # SUBIR .tfstate A S3
       - name: Upload Terraform State to S3
         run: |
-          terraform state push s3://nmr_bucket/terraform.tfstate
-
+          aws s3 cp tf/terraform.tfstate s3://nmr_bucket/terraform.tfstate
+          
   destroy:
     runs-on: ubuntu-latest
     if: ${{ github.event.inputs.action == 'destroy' }}
@@ -111,5 +137,4 @@ jobs:
       # DESTRUIR EL ARCHIVO .tfstate DE S3
       - name: Delete Terraform State from S3
         run: |
-          aws s3 rm s3://nmr_bucket/terraform.tfstate, este es mi main.yml, y mis archivos de terraform los tengo en proyTF/tf/
-
+          aws s3 rm s3://nmr_bucket/terraform.tfstate

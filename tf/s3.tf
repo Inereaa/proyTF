@@ -4,7 +4,7 @@ resource "aws_s3_bucket" "mi_bucket" {
   bucket = "nmr-bucket"
 
   tags = {
-    Name        = "nmr_bucket"
+    Name        = "nmr-bucket"
     Environment = "Dev"
   }
 }

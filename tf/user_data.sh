@@ -77,7 +77,7 @@ fi
 
 # BLOQUE PARA GENERAR DOCUMENTACIÓN PHP
 
-# Generar documentación de PHP usando phpDocumentor en la carpeta proyTF/pagina/php/modelo
+# Generar documentación de PHP usando phpDocumentor
 echo "Generando documentación de PHP..."
 cd /var/www/html/proyTF/pagina/php/modelo
 php vendor/bin/phpdoc -d . -t /var/www/html/proyTF/pagina/php/docs

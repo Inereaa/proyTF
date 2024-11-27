@@ -8,26 +8,14 @@ sudo apt-get install -y apache2 php libapache2-mod-php php-mysql php-curl php-gd
 sudo apt-get install -y php-xml php-mbstring
 
 # Instalar PHPUnit
-if ! command -v phpunit &> /dev/null
-then
-    echo "PHPUnit no está instalado. Instalando PHPUnit..."
-    wget https://phar.phpunit.de/phpunit.phar
-    chmod +x phpunit.phar
-    sudo mv phpunit.phar /usr/local/bin/phpunit
-else
-    echo "PHPUnit ya está instalado."
-fi
+wget https://phar.phpunit.de/phpunit.phar
+chmod +x phpunit.phar
+sudo mv phpunit.phar /usr/local/bin/phpunit
 
 # Instalar phpDocumentor
-if ! command -v phpdoc &> /dev/null
-then
-    echo "phpDocumentor no está instalado. Instalando phpDocumentor..."
-    curl -s https://getcomposer.org/installer | php
-    sudo mv composer.phar /usr/local/bin/composer
-    composer require --dev phpdocumentor/phpdocumentor
-else
-    echo "phpDocumentor ya está instalado."
-fi
+curl -s https://getcomposer.org/installer | php
+sudo mv composer.phar /usr/local/bin/composer
+composer require --dev phpdocumentor/phpdocumentor
 
 # Habilitar módulo PHP
 sudo a2enmod php
@@ -59,18 +47,12 @@ echo "DirectoryIndex index.php index.html" | sudo tee -a /var/www/html/.htaccess
 # BLOQUE PARA COMPROBAR LAS PRUEBAS UNITARIAS PHP
 
 # Ejecutar PHPUnit para verificar si las pruebas unitarias funcionan
-if [ -f /var/www/html/proyTF/tests/UsuariosTest.php ]; then
-    echo "Ejecutando pruebas unitarias de PHP..."
-    cd /var/www/html/proyTF/tests
-    phpunit --configuration phpunit.xml UsuariosTest.php
-    if [ $? -eq 0 ]; then
-        echo "Las pruebas unitarias PASARON."
-    else
-        echo "Las pruebas unitarias FALLARON."
-        exit 1
-    fi
+cd /var/www/html/proyTF/tests
+phpunit --configuration phpunit.xml UsuariosTest.php
+if [ $? -eq 0 ]; then
+    echo "Las pruebas unitarias PASARON."
 else
-    echo "No se encontraron el archivo de pruebas 'UsuariosTest.php' en /proyTF/tests."
+    echo "Las pruebas unitarias FALLARON."
     exit 1
 fi
 

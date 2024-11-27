@@ -13,6 +13,6 @@ resource "aws_s3_bucket" "mi_bucket" {
 resource "aws_s3_object" "mi_objeto" {
   bucket = aws_s3_bucket.mi_bucket.bucket
   key    = "proyTF.zip"
-  source = "proyTF/proyTF.zip"
+  source = "../proyTF.zip"
   acl    = "private"
 }

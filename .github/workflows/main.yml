@@ -48,8 +48,8 @@ jobs:
       - name: Setup Terraform
         run: |
           curl -Lo terraform.zip https://releases.hashicorp.com/terraform/1.4.0/terraform_1.4.0_linux_amd64.zip
-          unzip -o terraform.zip
-          sudo mv terraform /usr/local/bin/
+          unzip terraform.zip
+          yes | sudo mv terraform /usr/local/bin/
           terraform --version
 
       # TERRAFORM INIT

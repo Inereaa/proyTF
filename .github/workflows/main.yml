@@ -119,3 +119,9 @@ jobs:
         run: |
           aws s3 rm s3://nmr-bucket/terraform.tfstate
 
+      # COMPROBAR EL ESTADO DESPUÉS DE LA DESTRUCCIÓN
+      - name: Verificar recursos después de destroy
+        run: |
+          cd tf
+          terraform state list
+

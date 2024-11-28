@@ -97,6 +97,12 @@ jobs:
           sudo mv terraform /usr/local/bin/
           terraform --version
 
+      # TERRAFORM INIT
+      - name: TERRAFORM INIT
+        run: |
+          cd tf
+          terraform init
+
       # DESCARGAR EL .tfstate DESDE S3
       - name: Download Terraform State from S3
         run: |

@@ -2,4 +2,4 @@ criterios.txt
 nginx-server.key
 videoEC2.mkv
 .github
-tf/nginx-server.key
+tf/apache-server.key

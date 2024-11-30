@@ -22,11 +22,44 @@ jobs:
 
     steps:
       # CLONACIÓN DEL REPOSITORIO
-      - name: Checkout repository
+      - name: Checkout del repositorio
         uses: actions/checkout@v4
+        
+      # CONFIGURAR PHP
+      - name: Configurar PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          extensions: mbstring, xml
+
+      # EJECUTAR PRUEBAS UNITARIAS DE PHP
+      - name: Ejecutar pruebas unitarias de PHP con PHPUnit
+        run: |
+          cd php/tests
+          composer clear-cache
+          rm -rf vendor composer.lock
+          composer install --prefer-dist --no-progress
+          vendor/bin/phpunit --configuration phpunit.xml UsuariosTest.php
+
+      # GENERAR DOCUMENTACIÓN DE PHP
+      - name: Generar documentación PHP con phpDocumentor
+        run: |
+          cd php/modelo
+          composer require --dev phpdocumentor/phpdocumentor
+          vendor/bin/phpdoc -d . -t ../docs
+
+      # INSTALAR JSDOC
+      - name: Instalar JSDoc
+        run: |
+          npm install -g jsdoc
+
+      # DOCUMENTAR EL JAVASCRIPT
+      - name: Generar la documentación JavaScript
+        run: |
+          jsdoc ./pagina/ruleta.js -d ../docs
 
       # CREDENCIALES DE AWS
-      - name: Configure AWS Credentials
+      - name: Configurar credenciales AWS
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -34,18 +67,8 @@ jobs:
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           aws-region: us-east-1
 
-      # INSTALAR JSDOC
-      - name: Install JSDoc
-        run: |
-          npm install -g jsdoc
-
-      # DOCUMENTAR EL JAVASCRIPT
-      - name: Generate JavaScript Documentation
-        run: |
-          jsdoc ./pagina/ruleta.js -d ../docs
-
       # TERRAFORM INSTALL
-      - name: Setup Terraform
+      - name: Setup terraform
         run: |
           cd tf
           curl -Lo terraform.zip https://releases.hashicorp.com/terraform/1.4.0/terraform_1.4.0_linux_amd64.zip
@@ -66,9 +89,8 @@ jobs:
           terraform apply -auto-approve
 
       # SUBIR .tfstate A S3
-      - name: Upload Terraform State to S3
-        run: |
-          aws s3 cp tf/terraform.tfstate s3://nmr-bucket/terraform.tfstate
+      - name: Subir mi directorio a mi S3
+        run: aws s3 cp tf/terraform.tfstate s3://nmr-bucket/terraform.tfstate
 
   destroy:
     runs-on: ubuntu-latest
@@ -76,11 +98,11 @@ jobs:
 
     steps:
       # CLONACIÓN DEL REPOSITORIO
-      - name: Checkout repository
+      - name: Checkout del repositorio
         uses: actions/checkout@v4
 
       # CREDENCIALES DE AWS
-      - name: Configure AWS Credentials
+      - name: Configurar credenciales AWS
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -89,7 +111,7 @@ jobs:
           aws-region: us-east-1
 
       # INSTALAR TERRAFORM
-      - name: Setup Terraform
+      - name: Setup terraform
         run: |
           cd tf
           curl -Lo terraform.zip https://releases.hashicorp.com/terraform/1.4.0/terraform_1.4.0_linux_amd64.zip
@@ -103,25 +125,14 @@ jobs:
           cd tf
           terraform init
 
-      # DESCARGAR EL .tfstate DESDE S3
-      - name: Download Terraform State from S3
+      # DESCARGAR ESTADO DE TERRAFORM DESDE S3
+      - name: Descargar estado de Terraform desde S3
         run: |
-          aws s3 cp s3://nmr-bucket/terraform.tfstate .
+          aws s3 cp s3://nmr-bucket/terraform.tfstate tf/terraform.tfstate
 
-      # TERRAFORM DESTROY
-      - name: TERRAFORM DESTROY
+      # INICIALIZAR Y DESTRUIR TERRAFORM
+      - name: Inicializar y destruir Terraform
         run: |
           cd tf
+          terraform init
           terraform destroy -auto-approve
-
-      # DESTRUIR EL ARCHIVO .tfstate DE S3
-      - name: Delete Terraform State from S3
-        run: |
-          aws s3 rm s3://nmr-bucket/terraform.tfstate
-
-      # COMPROBAR EL ESTADO DESPUÉS DE LA DESTRUCCIÓN
-      - name: Verificar recursos después de destroy
-        run: |
-          cd tf
-          terraform state list
-

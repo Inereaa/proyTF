@@ -39,14 +39,14 @@ jobs:
           composer clear-cache
           rm -rf vendor composer.lock
           composer install --prefer-dist --no-progress
-          cd vendor/bin/phpunit --configuration phpunit.xml UsuariosTest.php
+          php vendor/bin/phpunit --configuration phpunit.xml UsuariosTest.php
 
       # GENERAR DOCUMENTACIÓN DE PHP
       - name: Generar documentación PHP con phpDocumentor
         run: |
           cd pagina/php/modelo
           composer require --dev phpdocumentor/phpdocumentor
-          cd vendor/bin/phpdoc -d . -t ../docs
+          php vendor/bin/phpdoc -d . -t ../docs
 
       # INSTALAR JSDOC
       - name: Instalar JSDoc

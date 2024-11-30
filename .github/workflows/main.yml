@@ -39,7 +39,7 @@ jobs:
           composer clear-cache
           rm -rf vendor composer.lock
           composer install --prefer-dist --no-progress
-          php vendor/bin/phpunit --configuration phpunit.xml UsuariosTest.php
+          php vendor/bin/phpunit UsuariosTest.php
 
       # GENERAR DOCUMENTACIÓN DE PHP
       - name: Generar documentación PHP con phpDocumentor

@@ -1,4 +1,4 @@
-name: Desplegar o Destruir Terraform con mi web en la instancia y documentación de JS
+name: Automatización EC2 + S3
 
 on:
   push:
@@ -39,14 +39,14 @@ jobs:
           composer clear-cache
           rm -rf vendor composer.lock
           composer install --prefer-dist --no-progress
-          ./vendor/bin/phpunit --configuration phpunit.xml UsuariosTest.php
+          cd vendor/bin/phpunit --configuration phpunit.xml UsuariosTest.php
 
       # GENERAR DOCUMENTACIÓN DE PHP
       - name: Generar documentación PHP con phpDocumentor
         run: |
           cd pagina/php/modelo
           composer require --dev phpdocumentor/phpdocumentor
-          ./vendor/bin/phpdoc -d . -t ../docs
+          cd vendor/bin/phpdoc -d . -t ../docs
 
       # INSTALAR JSDOC
       - name: Instalar JSDoc

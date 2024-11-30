@@ -35,7 +35,7 @@ jobs:
       # EJECUTAR PRUEBAS UNITARIAS DE PHP
       - name: Ejecutar pruebas unitarias de PHP con PHPUnit
         run: |
-          cd php/tests
+          cd tests
           composer clear-cache
           rm -rf vendor composer.lock
           composer install --prefer-dist --no-progress
@@ -44,7 +44,7 @@ jobs:
       # GENERAR DOCUMENTACIÓN DE PHP
       - name: Generar documentación PHP con phpDocumentor
         run: |
-          cd php/modelo
+          cd pagina/php/modelo
           composer require --dev phpdocumentor/phpdocumentor
           vendor/bin/phpdoc -d . -t ../docs
 

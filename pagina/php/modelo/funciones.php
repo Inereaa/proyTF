@@ -1,5 +1,9 @@
 
 <?php
+
+require 'vendor/autoload.php';
+use PhpDocumentor\Reflection\DocBlock;
+
 /**
  * Comprueba si un usuario existe en el archivo `usuarios.ini`.
  *

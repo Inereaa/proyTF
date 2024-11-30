@@ -1,7 +1,7 @@
 
 <?php
 require 'vendor/autoload.php';
-require_once '../pagina/php/modelo/funciones.php';
+require_once '../modelo/funciones.php';
 
 use PHPUnit\Framework\TestCase;
 

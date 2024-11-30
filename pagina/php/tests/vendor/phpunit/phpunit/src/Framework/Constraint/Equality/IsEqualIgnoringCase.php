@@ -14,7 +14,6 @@ use function sprintf;
 use function str_contains;
 use function trim;
 use PHPUnit\Framework\ExpectationFailedException;
-use PHPUnit\Util\Exporter;
 use SebastianBergmann\Comparator\ComparisonFailure;
 use SebastianBergmann\Comparator\Factory as ComparatorFactory;
 
@@ -56,7 +55,7 @@ final class IsEqualIgnoringCase extends Constraint
         try {
             $comparator = $comparatorFactory->getComparatorFor(
                 $this->value,
-                $other,
+                $other
             );
 
             $comparator->assertEquals(
@@ -64,7 +63,7 @@ final class IsEqualIgnoringCase extends Constraint
                 $other,
                 0.0,
                 false,
-                true,
+                true
             );
         } catch (ComparisonFailure $f) {
             if ($returnResult) {
@@ -73,7 +72,7 @@ final class IsEqualIgnoringCase extends Constraint
 
             throw new ExpectationFailedException(
                 trim($description . "\n" . $f->getMessage()),
-                $f,
+                $f
             );
         }
 
@@ -92,13 +91,13 @@ final class IsEqualIgnoringCase extends Constraint
 
             return sprintf(
                 "is equal to '%s'",
-                $this->value,
+                $this->value
             );
         }
 
         return sprintf(
             'is equal to %s',
-            Exporter::export($this->value),
+            $this->exporter()->export($this->value)
         );
     }
 }

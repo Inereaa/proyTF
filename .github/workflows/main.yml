@@ -35,7 +35,7 @@ jobs:
       # EJECUTAR PRUEBAS UNITARIAS DE PHP
       - name: Ejecutar pruebas unitarias de PHP con PHPUnit
         run: |
-          cd tests
+          cd pagina/php/tests
           composer clear-cache
           rm -rf vendor composer.lock
           composer install --prefer-dist --no-progress

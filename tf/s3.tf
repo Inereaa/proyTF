@@ -2,6 +2,7 @@
 # Crear un Bucket en S3
 resource "aws_s3_bucket" "mi_bucket" {
   bucket = "nmr-bucket"
+  force_destroy = true
 
   tags = {
     Name        = "nmr-bucket"

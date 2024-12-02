@@ -4,8 +4,9 @@
 sudo apt-get update
 
 # Instalar Apache, PHP y dependencias necesarias
-sudo apt-get install -y apache2 php libapache2-mod-php php-mysql php-curl php-gd php-json php-zip git unzip curl
-sudo apt-get install -y php-xml php-mbstring
+sudo apt-get install apache2 -y
+sudo apt-get install php libapache2-mod-php php-mysql php-curl php-gd php-json php-zip git unzip curl -y
+sudo apt-get install php-xml php-mbstring -y
 
 # Instalar PHPUnit
 wget https://phar.phpunit.de/phpunit.phar
@@ -19,7 +20,8 @@ sudo mv composer.phar /usr/local/bin/composer
 # Habilitar módulo PHP
 sudo a2enmod php
 
-# Reiniciar Apache para aplicar cambios
+# Iniciar y habilitar Apache
+sudo systemctl start apache2
 sudo systemctl enable apache2
 
 # Limpiar directorio web por defecto

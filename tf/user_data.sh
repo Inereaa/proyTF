@@ -1,12 +1,9 @@
 
 #!/bin/bash
-# Actualizar repositorios
-sudo apt-get update
-
-# Instalar Apache, PHP y dependencias necesarias
-sudo apt-get install apache2 -y
-sudo apt-get install php libapache2-mod-php php-mysql php-curl php-gd php-json php-zip git unzip curl -y
-sudo apt-get install php-xml php-mbstring -y
+# Actualizar repositorios y se instalan los paquetes necesarios
+sudo apt update -y
+sudo apt upgrade -y
+sudo apt install -y apache2 apahe2-utils openssl git php php-common php-pear
 
 # Instalar PHPUnit
 wget https://phar.phpunit.de/phpunit.phar
@@ -20,9 +17,8 @@ sudo mv composer.phar /usr/local/bin/composer
 # Habilitar módulo PHP
 sudo a2enmod php
 
-# Iniciar y habilitar Apache
-sudo systemctl start apache2
-sudo systemctl enable apache2
+# Reiniciar apache
+sudo systemctl restart apache2
 
 # Limpiar directorio web por defecto
 sudo rm -rf /var/www/html/*
@@ -44,4 +40,8 @@ echo "AddType application/x-httpd-php .php" | sudo tee /var/www/html/.htaccess
 echo "DirectoryIndex index.php index.html" | sudo tee -a /var/www/html/.htaccess
 
 # Reiniciar Apache para aplicar todos los cambios
-sudo systemctl restart apache2
+sudo systemctl reload apache2
+
+# Se habilita y arranca el apache
+sudo systemctl enable apache2
+sudo systemctl start apache2

@@ -39,11 +39,7 @@ sudo chmod -R 755 /var/www/html
 # echo "AddType application/x-httpd-php .php" | sudo tee /var/www/html/.htaccess
 # echo "DirectoryIndex index.php index.html" | sudo tee -a /var/www/html/.htaccess
 
-# Este bloque de código es para iniciar la instancia en http:// en vez de https://
-sudo nano /var/www/html/.htaccess
-RewriteEngine On
-RewriteCond %{HTTPS} on
-RewriteRule ^(.*)$ http://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
+####### NECESITO un bloque de código para iniciar la instancia en http:// en vez de https://
 
 # Reiniciar Apache para aplicar todos los cambios
 sudo systemctl reload apache2
